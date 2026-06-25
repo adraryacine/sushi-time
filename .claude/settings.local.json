@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir)",
+      "Bash(cp \"5897929209647140862.jpg\" \"menu-barista.jpg\")",
+      "Bash(cp \"5897929209647140863.jpg\" \"menu-desserts.jpg\")",
+      "Bash(cp \"5897929209647140864.jpg\" \"menu-milkshake.jpg\")",
+      "Bash(cp \"5897929209647140865.jpg\" \"menu-crepes.jpg\")",
+      "Bash(cp \"5897929209647140866.jpg\" \"menu-cocktails.jpg\")"
+    ]
+  }
+}
