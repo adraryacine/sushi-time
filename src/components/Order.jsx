@@ -178,7 +178,7 @@ export default function Order() {
 
                 <div>
                   <label className="block font-sans text-xs text-white/35 tracking-widest uppercase mb-2">
-                    Téléphone <span className="text-gold/60">(pour être rappelé)</span>
+                    Téléphone <span className="text-gold/60">(pour confirmer la commande)</span>
                   </label>
                   <input
                     type="tel"
