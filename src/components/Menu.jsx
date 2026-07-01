@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useCart, parsePrice } from '../context/CartContext'
 
 const tabs = [
   { id: 'sushis', label: 'Sushis', icon: '🍣' },
@@ -225,104 +226,205 @@ const menu = {
   ],
 }
 
-// Modal photo
-function PhotoModal({ item, onClose }) {
+// Dérive les libellés des deux formats à partir du sous-titre
+// ("04 pièces / 08 pièces" → ["04 pcs", "08 pcs"]).
+function dualLabels(cat) {
+  if (cat.subtitle && cat.subtitle.includes('/')) {
+    return cat.subtitle
+      .split('/')
+      .map(s => s.trim().replace('pièces', 'pcs').replace('pièce', 'pc'))
+  }
+  return ['Simple', 'Double']
+}
+
+// Fiche produit : photo (ou placeholder) + ajout au panier.
+function ItemModal({ item, cat, onClose }) {
+  const { addItem } = useCart()
+  const isDual = Boolean(cat.dual)
+  const labels = dualLabels(cat)
+  const [variant, setVariant] = useState(0)
+  const [added, setAdded] = useState(false)
+
+  const priceStr = isDual ? (variant === 0 ? item.price : item.price2) : item.price
+
+  const handleAdd = () => {
+    addItem({
+      key: `${cat.category}::${item.name}::${isDual ? labels[variant] : ''}`,
+      name: item.name,
+      category: cat.category,
+      variant: isDual ? labels[variant] : null,
+      price: parsePrice(priceStr),
+      priceLabel: priceStr,
+      photo: item.photo || null,
+    })
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1600)
+  }
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-dark/95 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-dark/90 backdrop-blur-md p-4 animate-overlay-in"
       onClick={onClose}
     >
       <div
-        className="relative max-w-lg w-full"
+        className="card-dark relative w-full max-w-md overflow-hidden animate-modal-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute -top-10 right-0 font-sans text-xs text-white/40 hover:text-gold tracking-widest uppercase transition-colors"
+          aria-label="Fermer"
+          className="absolute top-4 right-4 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-dark/70 backdrop-blur border border-white/15 text-white/70 hover:text-gold hover:border-gold/60 hover:rotate-90 transition-all duration-300"
         >
-          Fermer ✕
+          ✕
         </button>
 
-        {/* Image */}
-        <img
-          src={item.photo}
-          alt={item.name}
-          className="w-full object-cover border border-gold/10"
-        />
-
-        {/* Info */}
-        <div className="bg-dark-800 border border-gold/10 border-t-0 px-6 py-4 flex justify-between items-center">
-          <div>
-            <p className="font-serif text-xl text-white">{item.name}</p>
-            {item.desc && <p className="font-sans text-xs text-white/40 mt-1">{item.desc}</p>}
+        {/* Image ou placeholder */}
+        {item.photo ? (
+          <div className="relative h-60 overflow-hidden">
+            <img src={item.photo} alt={item.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-dark-800 via-dark-800/20 to-transparent" />
           </div>
-          <p className="font-serif text-2xl text-gold ml-4">{item.price}<span className="text-base text-gold/60">¥</span></p>
+        ) : (
+          <div className="relative h-60 flex flex-col items-center justify-center gap-4 overflow-hidden">
+            {/* halo doré animé */}
+            <div className="absolute w-48 h-48 rounded-full bg-gold/20 blur-3xl animate-glow" />
+            <div className="relative w-20 h-20 flex items-center justify-center rounded-full border border-gold/30 bg-gold/[0.06]">
+              <span className="text-4xl select-none">🍣</span>
+            </div>
+            <p className="relative font-sans text-[11px] text-white/40 tracking-widest uppercase">
+              Photo bientôt disponible
+            </p>
+            <div className="absolute inset-0 bg-gradient-to-t from-dark-800 to-transparent" />
+          </div>
+        )}
+
+        {/* Corps */}
+        <div className="relative px-7 pb-7 -mt-6">
+          <span className="inline-block rounded-full bg-gold/10 border border-gold/25 px-3 py-1 font-sans text-[10px] text-gold tracking-widest uppercase">
+            {cat.category}
+          </span>
+          <h3 className="font-serif text-3xl text-white leading-tight mt-3">{item.name}</h3>
+          {item.desc && (
+            <p className="font-sans text-xs text-white/45 mt-2 leading-relaxed">{item.desc}</p>
+          )}
+
+          {/* Prix / choix du format */}
+          {isDual ? (
+            <div className="flex gap-3 mt-5 mb-7">
+              {[0, 1].map(i => (
+                <button
+                  key={i}
+                  onClick={() => setVariant(i)}
+                  className={`flex-1 rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
+                    variant === i
+                      ? 'border-gold bg-gold/10 shadow-[0_0_20px_-6px_rgba(201,168,76,0.5)]'
+                      : 'border-white/10 hover:border-gold/40'
+                  }`}
+                >
+                  <p className="font-sans text-[10px] text-white/40 uppercase tracking-widest">{labels[i]}</p>
+                  <p className="font-serif text-xl text-gold mt-0.5">
+                    {i === 0 ? item.price : item.price2}
+                    <span className="text-sm text-gold/70">¥</span>
+                  </p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-baseline gap-1 mt-5 mb-7">
+              <span className="font-serif text-4xl text-gold">{item.price}</span>
+              <span className="font-serif text-xl text-gold/70">¥</span>
+            </div>
+          )}
+
+          {/* Ajouter au panier */}
+          <button
+            onClick={handleAdd}
+            className={`w-full text-sm ${added ? 'btn-ghost !text-gold !border-gold' : 'btn-primary'}`}
+          >
+            {added ? '✓ Ajouté au panier' : '🛒 Ajouter au panier'}
+          </button>
         </div>
       </div>
     </div>
   )
 }
 
-function PriceTag({ price, label }) {
+function Price({ value }) {
   return (
-    <div className="text-right shrink-0 ml-4">
-      {label && <p className="font-sans text-[10px] text-white/30 uppercase tracking-widest">{label}</p>}
-      <p className="font-serif text-lg text-gold whitespace-nowrap">{price}<span className="text-sm text-gold/70">¥</span></p>
-    </div>
+    <span className="font-serif text-[15px] text-gold whitespace-nowrap">
+      {value}<span className="text-[10px] text-gold/60">¥</span>
+    </span>
   )
 }
 
-function MenuCategory({ cat, onPhotoClick }) {
+function MenuCategory({ cat, onItemClick }) {
+  const labels = cat.dual ? dualLabels(cat) : null
   return (
-    <div className="mb-10">
-      <div className="flex items-center gap-4 mb-5">
-        <div className="w-6 h-px bg-gold/60" />
-        <div>
-          <h3 className="font-serif text-2xl text-gold italic">{cat.category}</h3>
+    <div className="card-dark break-inside-avoid mb-6 p-5">
+      {/* En-tête de catégorie */}
+      <div className="flex items-start justify-between gap-3 pb-3 mb-1 border-b border-gold/15">
+        <div className="min-w-0">
+          <h3 className="font-serif text-xl text-gold italic leading-tight">{cat.category}</h3>
           {cat.subtitle && (
-            <p className="font-sans text-[11px] text-white/35 tracking-wider mt-0.5">{cat.subtitle}</p>
+            <p className="font-sans text-[10px] text-white/35 tracking-wider mt-1 leading-snug">{cat.subtitle}</p>
           )}
         </div>
-        <div className="flex-1 h-px bg-white/5" />
+        {cat.dual && (
+          <div className="flex gap-4 shrink-0 pt-1">
+            {labels.map(l => (
+              <span key={l} className="w-14 text-right font-sans text-[9px] text-white/30 uppercase tracking-widest">
+                {l}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="space-y-0">
+      {/* Plats */}
+      <div>
         {cat.items.map((item) => {
           const hasPhoto = Boolean(item.photo)
           return (
             <div
               key={item.name}
-              onClick={() => hasPhoto && onPhotoClick(item)}
-              className={`flex justify-between items-start py-4 border-b border-white/5 transition-colors group px-2
-                ${hasPhoto ? 'cursor-pointer hover:bg-gold/5' : 'hover:bg-white/[0.02]'}`}
+              onClick={() => onItemClick(item, cat)}
+              className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0 -mx-2 px-2 rounded-lg cursor-pointer group hover:bg-gold/[0.06] transition-colors"
             >
-              <div className="flex-1 min-w-0 pr-4 flex items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className={`font-serif text-base leading-snug transition-colors
-                      ${hasPhoto ? 'text-white/90 group-hover:text-gold' : 'text-white/90'}`}>
-                      {item.name}
-                    </p>
-                    {hasPhoto && (
-                      <span className="text-gold/50 group-hover:text-gold transition-colors text-sm shrink-0" title="Voir la photo">
-                        📷
-                      </span>
-                    )}
+              {/* Vignette */}
+              <div className="w-9 h-9 shrink-0 overflow-hidden rounded-md border border-gold/20 group-hover:border-gold/50 transition-colors">
+                {hasPhoto ? (
+                  <img
+                    src={item.photo}
+                    alt={item.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gold/[0.06] text-gold/50 text-sm group-hover:text-gold transition-colors">
+                    ＋
                   </div>
-                  {item.desc && (
-                    <p className="font-sans text-[11px] text-white/35 mt-0.5 leading-relaxed">{item.desc}</p>
-                  )}
-                </div>
+                )}
               </div>
 
+              {/* Nom + description */}
+              <div className="flex-1 min-w-0">
+                <p className="font-sans text-[13px] text-white/85 group-hover:text-gold transition-colors leading-tight">
+                  {item.name}
+                </p>
+                {item.desc && (
+                  <p className="font-sans text-[10px] text-white/30 leading-tight mt-0.5">{item.desc}</p>
+                )}
+              </div>
+
+              {/* Prix */}
               {cat.dual ? (
                 <div className="flex gap-4 shrink-0">
-                  <PriceTag price={item.price} label="05 pcs" />
-                  <PriceTag price={item.price2} label="10 pcs" />
+                  <span className="w-14 text-right"><Price value={item.price} /></span>
+                  <span className="w-14 text-right"><Price value={item.price2} /></span>
                 </div>
               ) : (
-                <PriceTag price={item.price} />
+                <Price value={item.price} />
               )}
             </div>
           )
@@ -334,7 +436,7 @@ function MenuCategory({ cat, onPhotoClick }) {
 
 export default function Menu() {
   const [activeTab, setActiveTab] = useState('sushis')
-  const [selectedItem, setSelectedItem] = useState(null)
+  const [selected, setSelected] = useState(null)
 
   return (
     <section id="menu" className="py-28 bg-dark-800">
@@ -347,7 +449,7 @@ export default function Menu() {
           </h2>
           <div className="gold-divider" />
           <p className="font-sans text-xs text-white/35 tracking-widest">
-            Les plats avec 📷 sont cliquables pour voir la photo
+            Cliquez sur un plat pour l'ajouter à votre commande
           </p>
         </div>
 
@@ -369,10 +471,14 @@ export default function Menu() {
           ))}
         </div>
 
-        {/* Menu items */}
-        <div>
+        {/* Menu items — grille masonry sur 2 colonnes */}
+        <div className="columns-1 md:columns-2 gap-6">
           {menu[activeTab].map(cat => (
-            <MenuCategory key={cat.category} cat={cat} onPhotoClick={setSelectedItem} />
+            <MenuCategory
+              key={cat.category}
+              cat={cat}
+              onItemClick={(item, c) => setSelected({ item, cat: c })}
+            />
           ))}
         </div>
 
@@ -380,14 +486,14 @@ export default function Menu() {
           <p className="font-sans text-xs text-white/25 tracking-widest mb-8">
             Informations allergènes disponibles sur demande
           </p>
-          <a href="#contact" className="btn-gold">Nous contacter</a>
+          <a href="#commander" className="btn-primary text-sm">🛒 Voir ma commande</a>
         </div>
 
       </div>
 
-      {/* Photo modal */}
-      {selectedItem && (
-        <PhotoModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+      {/* Fiche produit */}
+      {selected && (
+        <ItemModal item={selected.item} cat={selected.cat} onClose={() => setSelected(null)} />
       )}
     </section>
   )

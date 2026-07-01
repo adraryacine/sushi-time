@@ -45,10 +45,10 @@ export default function Hero() {
             Découvrir la carte
           </a>
           <a
-            href="#contact"
+            href="#commander"
             className="inline-block px-8 py-3 font-sans text-xs tracking-widest uppercase text-white/50 hover:text-gold transition-colors duration-300"
           >
-            Nous trouver →
+            Commander →
           </a>
         </div>
       </div>

@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
+import { useCart } from '../context/CartContext'
 
 const links = [
   { label: 'Accueil', href: '#hero' },
   { label: 'À propos', href: '#about' },
   { label: 'Menu', href: '#menu' },
   { label: 'Galerie', href: '#gallery' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Commander', href: '#commander' },
 ]
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const { count } = useCart()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -42,8 +44,14 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <a href="#contact" className="hidden md:block btn-gold text-xs">
-          Réserver
+        <a href="#commander" className="hidden md:inline-flex btn-primary text-xs !py-3 !px-6">
+          <span>🛒</span>
+          Commander
+          {count > 0 && (
+            <span className="ml-1 min-w-5 h-5 px-1.5 flex items-center justify-center rounded-full bg-dark text-gold text-[11px] font-bold">
+              {count}
+            </span>
+          )}
         </a>
 
         {/* Mobile burger */}
@@ -71,8 +79,8 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          <a href="#contact" className="btn-gold text-center" onClick={() => setMenuOpen(false)}>
-            Réserver
+          <a href="#commander" className="btn-gold text-center" onClick={() => setMenuOpen(false)}>
+            🛒 Commander{count > 0 ? ` (${count})` : ''}
           </a>
         </div>
       )}

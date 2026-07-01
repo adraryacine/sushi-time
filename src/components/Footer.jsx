@@ -15,7 +15,7 @@ export default function Footer() {
               { label: 'Accueil', href: '#hero' },
               { label: 'Menu', href: '#menu' },
               { label: 'Galerie', href: '#gallery' },
-              { label: 'Contact', href: '#contact' },
+              { label: 'Commander', href: '#commander' },
             ].map(({ label, href }) => (
               <a
                 key={label}
