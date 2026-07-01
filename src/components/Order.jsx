@@ -201,7 +201,7 @@ export default function Order() {
                         onClick={() => setForm(prev => ({ ...prev, mode }))}
                         className={`flex-1 rounded-full border px-4 py-3 font-sans text-xs tracking-widest uppercase transition-all duration-300 ${
                           form.mode === mode
-                            ? 'border-gold bg-gold/10 text-gold shadow-[0_0_20px_-6px_rgba(201,168,76,0.5)]'
+                            ? 'border-gold bg-gold/10 text-gold shadow-[0_0_20px_-6px_rgba(241,155,179,0.5)]'
                             : 'border-white/10 text-white/40 hover:border-gold/30 hover:text-white/70'
                         }`}
                       >

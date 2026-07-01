@@ -318,7 +318,7 @@ function ItemModal({ item, cat, onClose }) {
                   onClick={() => setVariant(i)}
                   className={`flex-1 rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
                     variant === i
-                      ? 'border-gold bg-gold/10 shadow-[0_0_20px_-6px_rgba(201,168,76,0.5)]'
+                      ? 'border-gold bg-gold/10 shadow-[0_0_20px_-6px_rgba(241,155,179,0.5)]'
                       : 'border-white/10 hover:border-gold/40'
                   }`}
                 >

@@ -21,7 +21,7 @@ export default function Hero() {
           <img
             src="/logo.jpg"
             alt="Sushis Time"
-            className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-2 border-gold/40 shadow-[0_0_40px_rgba(201,168,76,0.2)]"
+            className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-2 border-gold/40 shadow-[0_0_40px_rgba(241,155,179,0.25)]"
           />
         </div>
 

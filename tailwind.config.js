@@ -4,10 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Rose sakura (fleur de cerisier) — remplace l'ancien doré.
+        // La clé reste "gold" pour rester compatible avec toutes les classes existantes.
         gold: {
-          DEFAULT: '#c9a84c',
-          light: '#e0c97a',
-          dark: '#a07830',
+          DEFAULT: '#f19bb3',
+          light: '#ffc9dc',
+          dark: '#c76f92',
         },
         dark: {
           DEFAULT: '#0a0a0a',

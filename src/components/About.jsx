@@ -5,7 +5,7 @@ export default function About() {
 
         {/* Image side */}
         <div className="relative flex justify-center">
-          <div className="w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden border-2 border-gold/30 shadow-[0_0_60px_rgba(201,168,76,0.15)]">
+          <div className="w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden border-2 border-gold/30 shadow-[0_0_60px_rgba(241,155,179,0.18)]">
             <img
               src="/logo.jpg"
               alt="Sushis Time"
